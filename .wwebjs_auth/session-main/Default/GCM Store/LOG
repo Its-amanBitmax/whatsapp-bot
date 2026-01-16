@@ -1,2 +1,3 @@
-2026/01/16-12:09:32.488 55f8 Creating DB C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\GCM Store since it was missing.
-2026/01/16-12:09:32.491 55f8 Reusing MANIFEST C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\GCM Store/MANIFEST-000001
+2026/01/16-12:19:07.998 30f8 Reusing MANIFEST C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\GCM Store/MANIFEST-000001
+2026/01/16-12:19:07.999 30f8 Recovering log #3
+2026/01/16-12:19:07.999 30f8 Reusing old log C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\GCM Store/000003.log 

@@ -1,15 +1,23 @@
 // ================================
 // WHATSAPP BOT - FULLY WORKING 2025 EDITION
 // ================================
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const qrcode = require('qrcode');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import qrcode from 'qrcode';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
-const multer = require('multer');
+import puppeteer from "puppeteer";
+
+import pkg from 'whatsapp-web.js';
+const { Client, LocalAuth, MessageMedia } = pkg;
+import multer from 'multer';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const uploadDir = path.join(__dirname, 'uploads');
 
@@ -25,7 +33,7 @@ app.use(express.json({ limit: '200mb' }));
 app.use(express.urlencoded({ extended: true, limit: '200mb' }));
 
 const PORT = process.env.PORT || 4001;
-const API_KEY = process.env.WHATSAPP_API_KEY || 'SECRET123';
+const API_KEY = process.env.API_KEY || 'SECRET123';
 
 const ALLOWED_ORIGINS = [
     'https://www.bitmaxgroup.com',
@@ -77,33 +85,14 @@ function createClient() {
     if (client) client.destroy().catch(() => {});
 
 client = new Client({
-    authStrategy: new LocalAuth({ clientId: "main" }),
-    puppeteer: {
-        headless: true,
-        executablePath: process.platform === 'win32' ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '/usr/bin/google-chrome-stable',
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-gpu',
-            '--disable-background-timer-throttling',
-            '--disable-renderer-backgrounding',
-            '--disable-features=TranslateUI',
-            '--disable-ipc-flooding-protection',
-            '--disable-hang-monitor',
-            '--disable-prompt-on-repost',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-breakpad',
-            '--disable-component-extensions-with-background-pages',
-            '--disable-features=TranslateUI,ImprovedCookieControls',
-            '--disable-extensions',
-            '--disable-default-apps',
-            '--disable-sync'
-        ]
-    }
+  puppeteer: {
+    headless: false, // 👈 local me QR dekhne ke liye
+    executablePath: puppeteer.executablePath(),
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
+    ]
+  }
 });
 
     client.on('qr', async (qr) => {
@@ -410,6 +399,6 @@ app.post('/send-media', auth, upload.single('media'), async (req, res) => {
 
 // Server Start
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`WhatsApp Bot LIVE → https://bot.bitmaxgroup.com`);
-    console.log(`Port: ${PORT} | API Key: ${API_KEY}`);
+    console.log(`WhatsApp Bot LIVE → http://localhost:4001`);
+    console.log(`Port: 4001 | API Key: SECRET123`);
 });

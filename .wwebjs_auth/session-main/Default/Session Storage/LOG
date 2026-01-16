@@ -1,2 +1,3 @@
-2026/01/16-12:09:28.683 658 Creating DB C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\Session Storage since it was missing.
-2026/01/16-12:09:28.697 658 Reusing MANIFEST C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\Session Storage/MANIFEST-000001
+2026/01/16-12:26:10.847 461c Reusing MANIFEST C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\Session Storage/MANIFEST-000001
+2026/01/16-12:26:10.849 461c Recovering log #3
+2026/01/16-12:26:10.851 461c Reusing old log C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\Session Storage/000003.log 

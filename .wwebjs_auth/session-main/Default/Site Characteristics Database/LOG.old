@@ -1,5 +1,3 @@
-2026/01/16-12:09:28.072 1124 Log #3: 1 ops saved to Table #4 OK
-2026/01/16-12:09:28.074 1124 Archiving C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\Site Characteristics Database/000003.log: OK
-2026/01/16-12:09:28.075 1124 Table #4: 1 entries OK
-2026/01/16-12:09:28.076 1124 Archiving C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\Site Characteristics Database/MANIFEST-000001: OK
-2026/01/16-12:09:28.082 1124 **** Repaired leveldb C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\Site Characteristics Database; recovered 1 files; 130 bytes. Some data may have been lost. ****
+2026/01/16-12:25:33.873 1ca8 Reusing MANIFEST C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\Site Characteristics Database/MANIFEST-000001
+2026/01/16-12:25:33.873 1ca8 Recovering log #6
+2026/01/16-12:25:33.873 1ca8 Reusing old log C:\xampp\htdocs\Aman\whatsapp-bot\.wwebjs_auth\session-main\Default\Site Characteristics Database/000006.log 
