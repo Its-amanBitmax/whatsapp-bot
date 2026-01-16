@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WhatsApp QR Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .card {
+            background: #020617;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,.5);
+            width: 360px;
+        }
+        img {
+            width: 280px;
+            height: 280px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .status {
+            margin-top: 12px;
+            font-size: 14px;
+            opacity: .85;
+        }
+        .connection-status {
+            margin-top: 10px;
+            font-size: 12px;
+            opacity: .7;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 16px;
+            background: #dc2626;
+            border: none;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #b91c1c;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .otp-section {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .otp-section h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>WhatsApp QR Login</h2>
+
+    <img id="qr" src="" alt="QR Code">
+
+    <div class="status" id="status">Waiting for QR...</div>
+
+    <div class="connection-status" id="connection-status">Checking connection...</div>
+
+    <button onclick="deleteSession()">Delete Session</button>
+
+    <div class="otp-section">
+        <h3>Send OTP</h3>
+        <input type="text" id="otp-number" placeholder="Enter phone number (e.g., 1234567890)">
+        <button onclick="sendOTP()">Send OTP</button>
+    </div>
+</div>
+
+<script>
+    // Password protection
+    const PASSWORD = "am_2026@an"; // Change this to your desired password
+
+    function checkPassword() {
+        const enteredPassword = prompt("Enter password to access this page:");
+        if (enteredPassword !== PASSWORD) {
+            alert("Incorrect password!");
+            window.location.href = "about:blank"; // Redirect to blank page
+            return false;
+        }
+        return true;
+    }
+
+    // Check password on page load
+    if (!checkPassword()) {
+        // If password is wrong, stop execution
+        throw new Error("Access denied");
+    }
+
+    const API_KEY = "SECRET123";
+    const QR_URL = "/qr";
+    const STATUS_URL = "/status";
+    const DELETE_URL = "/delete-session";
+    const OTP_URL = "/send-otp";
+
+    async function loadQR() {
+        try {
+            const res = await fetch(QR_URL, {
+                headers: { "x-api-key": API_KEY }
+            });
+
+            if (!res.ok) {
+                document.getElementById("status").innerText =
+                    "QR not available. Scan completed or waiting...";
+                return;
+            }
+
+            const data = await res.json();
+            if (data.qr) {
+                document.getElementById("qr").src = data.qr;
+                document.getElementById("status").innerText =
+                    "Scan QR from WhatsApp";
+            } else {
+                document.getElementById("status").innerText =
+                    "QR not available. Scan completed or waiting...";
+            }
+        } catch {
+            document.getElementById("status").innerText =
+                "Server not reachable";
+        }
+    }
+
+    async function loadStatus() {
+        try {
+            const res = await fetch(STATUS_URL, {
+                headers: { "x-api-key": API_KEY }
+            });
+
+            if (!res.ok) {
+                document.getElementById("connection-status").innerText =
+                    "Unable to check status";
+                return;
+            }
+
+            const data = await res.json();
+            if (data.status === 'connected') {
+                document.getElementById("connection-status").innerText =
+                    `Connected as ${data.user.name} (${data.user.number})`;
+                document.getElementById("qr").style.display = "none";
+            } else {
+                document.getElementById("connection-status").innerText =
+                    "Disconnected";
+                document.getElementById("qr").style.display = "block";
+            }
+        } catch {
+            document.getElementById("connection-status").innerText =
+                "Server not reachable";
+        }
+    }
+
+    async function sendOTP() {
+        const number = document.getElementById("otp-number").value.trim();
+        if (!number) {
+            alert("Please enter a phone number");
+            return;
+        }
+
+        try {
+            const res = await fetch(OTP_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": API_KEY
+                },
+                body: JSON.stringify({ number })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                alert(data.message || "OTP sent successfully");
+                document.getElementById("otp-number").value = "";
+            } else {
+                alert(data.error || "Failed to send OTP");
+            }
+        } catch (error) {
+            alert("Error sending OTP: " + error.message);
+        }
+    }
+
+    async function deleteSession() {
+        if (!confirm("Delete WhatsApp session?")) return;
+
+        document.getElementById("status").innerText =
+            "Deleting session...";
+
+        await fetch(DELETE_URL, {
+            method: "POST",
+            headers: { "x-api-key": API_KEY }
+        });
+
+        setTimeout(loadQR, 3000);
+    }
+
+    // initial load
+    loadQR();
+    loadStatus();
+
+    // auto refresh every 10 sec
+    setInterval(loadQR, 10000);
+    setInterval(loadStatus, 10000);
+
+    // Disable right-click context menu
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+</script>
+
+</body>
+</html>

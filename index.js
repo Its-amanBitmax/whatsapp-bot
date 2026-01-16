@@ -28,6 +28,9 @@ if (!fs.existsSync(uploadDir)) {
 
 const app = express();
 
+// Serve static files
+app.use(express.static('.'));
+
 // Support large files
 app.use(express.json({ limit: '200mb' }));
 app.use(express.urlencoded({ extended: true, limit: '200mb' }));
@@ -36,23 +39,12 @@ const PORT = process.env.PORT || 4001;
 const API_KEY = process.env.API_KEY || 'SECRET123';
 
 const ALLOWED_ORIGINS = [
-    'https://www.bitmaxgroup.com',
-    'https://bot.bitmaxgroup.com',
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-    'https://dohelp.newhopeindia17.com/',
-    'http://localhost:5173/'
+   '*'  // Allow file:// protocol (for local HTML files)
 ];
 
 // CORS
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: true,  // Allow all origins for local development
     allowedHeaders: ['Content-Type', 'x-api-key'],
 }));
 
