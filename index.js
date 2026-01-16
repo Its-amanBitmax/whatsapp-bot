@@ -86,11 +86,12 @@ function createClient() {
 
 client = new Client({
   puppeteer: {
-    headless: false, // 👈 local me QR dekhne ke liye
-    executablePath: puppeteer.executablePath(),
+    headless: "new",
     args: [
       "--no-sandbox",
-      "--disable-setuid-sandbox"
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu"
     ]
   }
 });
