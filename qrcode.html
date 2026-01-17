@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+n<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -394,8 +394,8 @@
         <div class="otp-section">
             <div class="section-title">Send OTP</div>
             <div class="input-group">
-                <input type="text" 
-                       id="otp-number" 
+                <input type="text"
+                       id="otp-number"
                        placeholder="Enter phone number (e.g., +1234567890)"
                        maxlength="15">
             </div>
@@ -407,6 +407,27 @@
                 <button class="btn btn-danger" onclick="deleteSession()">
                     <span class="btn-icon">🗑️</span>
                     Delete Session
+                </button>
+            </div>
+        </div>
+
+        <div class="verify-section" id="verify-section" style="display: none;">
+            <div class="section-title">Verify OTP</div>
+            <div class="input-group">
+                <input type="text"
+                       id="verify-otp"
+                       placeholder="Enter 6-digit OTP code"
+                       maxlength="6"
+                       pattern="[0-9]{6}">
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="verifyOTP()">
+                    <span class="btn-icon">✅</span>
+                    Verify OTP
+                </button>
+                <button class="btn btn-secondary" onclick="cancelVerify()">
+                    <span class="btn-icon">❌</span>
+                    Cancel
                 </button>
             </div>
         </div>
@@ -444,6 +465,10 @@
     const STATUS_URL = "/status";
     const DELETE_URL = "/delete-session";
     const OTP_URL = "/send-otp";
+    const VERIFY_OTP_URL = "/verify-otp";
+
+    // Store phone number for verification
+    let currentPhoneNumber = "";
 
     // Toast notification function
     function showToast(message, isError = false) {
@@ -581,7 +606,11 @@
             
             if (res.ok) {
                 showToast(data.message || "✅ OTP sent successfully");
+                currentPhoneNumber = number; // Store phone number for verification
                 numberInput.value = "";
+                // Show verification section
+                document.getElementById('verify-section').style.display = 'block';
+                document.getElementById('verify-otp').focus();
             } else {
                 showToast(data.error || "❌ Failed to send OTP", true);
             }
@@ -661,6 +690,67 @@
             }
         });
     });
+
+    // Verify OTP function
+    async function verifyOTP() {
+        const otpInput = document.getElementById('verify-otp');
+        const otp = otpInput.value.trim();
+        const number = currentPhoneNumber; // Use stored phone number
+        const button = document.querySelector('#verify-section .btn-primary');
+        const originalText = button.innerHTML;
+
+        if (!otp || !number) {
+            showToast("Please enter OTP code", true);
+            otpInput.focus();
+            return;
+        }
+
+        // Basic OTP validation
+        if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+            showToast("Please enter a valid 6-digit OTP", true);
+            otpInput.focus();
+            return;
+        }
+
+        // Show loading state
+        button.innerHTML = '<span class="btn-icon">⏳</span>Verifying...';
+        button.disabled = true;
+
+        try {
+            const res = await fetch(VERIFY_OTP_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": API_KEY
+                },
+                body: JSON.stringify({ number, otp })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.verified) {
+                showToast("✅ OTP verified successfully!");
+                otpInput.value = "";
+                // Hide verification section
+                document.getElementById('verify-section').style.display = 'none';
+            } else {
+                showToast(data.error || "❌ Invalid OTP. Please try again.", true);
+            }
+        } catch (error) {
+            showToast("❌ Error verifying OTP: " + error.message, true);
+        } finally {
+            // Restore button state
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    }
+
+    // Cancel verification function
+    function cancelVerify() {
+        document.getElementById('verify-otp').value = "";
+        document.getElementById('verify-section').style.display = 'none';
+        showToast("Verification cancelled");
+    }
 
     // Disable right-click context menu
     document.addEventListener('contextmenu', function(e) {

@@ -26,6 +26,9 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+// OTP Storage (in-memory Map)
+const otpStore = new Map();
+
 const app = express();
 
 // Serve static files
@@ -126,6 +129,17 @@ setInterval(() => {
         });
     });
 }, 600000);
+
+// Auto cleanup expired OTPs
+setInterval(() => {
+    const now = Date.now();
+    for (const [number, data] of otpStore.entries()) {
+        if (now > data.expiry) {
+            otpStore.delete(number);
+            console.log(`🧹 Cleaned up expired OTP for ${number}`);
+        }
+    }
+}, 60000); // Check every minute
 
 // ================================
 // ALL ROUTES (100% WORKING)
@@ -246,6 +260,10 @@ app.post('/send-otp', auth, async (req, res) => {
         // 2️⃣ Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
+        // Store OTP with expiry (10 minutes)
+        const expiryTime = Date.now() + (10 * 60 * 1000); // 10 minutes from now
+        otpStore.set(formattedNumber, { otp, expiry: expiryTime });
+
         const otpMessage =
 `🔐 *OTP Verification*
 
@@ -291,6 +309,63 @@ Bitmax Group`;
     }
 });
 
+// ================================
+// OTP VERIFICATION (NEW ROUTE)
+// ================================
+app.post('/verify-otp', auth, (req, res) => {
+    try {
+        const { number, otp } = req.body;
+
+        if (!number || !otp) {
+            return res.status(400).json({ error: 'Number and OTP are required' });
+        }
+
+        // Normalize number
+        const formattedNumber = number.replace(/\D/g, '');
+
+        // Check if OTP exists for this number
+        const storedData = otpStore.get(formattedNumber);
+        if (!storedData) {
+            return res.status(400).json({
+                success: false,
+                error: 'No OTP found for this number. Please request a new OTP.'
+            });
+        }
+
+        // Check if OTP has expired
+        if (Date.now() > storedData.expiry) {
+            otpStore.delete(formattedNumber); // Clean up expired OTP
+            return res.status(400).json({
+                success: false,
+                error: 'OTP has expired. Please request a new OTP.'
+            });
+        }
+
+        // Verify OTP
+        if (storedData.otp === otp) {
+            // OTP is correct, remove it from storage
+            otpStore.delete(formattedNumber);
+            console.log(`✅ OTP verified successfully for ${formattedNumber}`);
+            return res.json({
+                success: true,
+                message: 'OTP verified successfully',
+                verified: true
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid OTP. Please try again.'
+            });
+        }
+
+    } catch (error) {
+        console.error('OTP Verification Error:', error);
+        res.status(500).json({
+            error: 'Failed to verify OTP',
+            details: error.message
+        });
+    }
+});
 
 // BULK SEND (Anti-Ban)
 app.post('/send-bulk', auth, upload.any(), async (req, res) => {
