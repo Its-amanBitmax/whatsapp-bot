@@ -1,4 +1,4 @@
-n<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -244,6 +244,35 @@ n<!DOCTYPE html>
 
         #otp-number::placeholder {
             color: var(--text-secondary);
+        }
+
+        /* OTP Verification Input Styling */
+        #verify-otp {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--input-bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            letter-spacing: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        #verify-otp:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 168, 132, 0.15);
+            background: rgba(0, 168, 132, 0.05);
+        }
+
+        #verify-otp::placeholder {
+            color: var(--text-secondary);
+            letter-spacing: normal;
+            font-weight: normal;
         }
 
         .button-group {
